@@ -17,42 +17,38 @@ MongoClient.connect(
 
     const db = client.db(databaseName);
 
-    // db.collection("users").findOne(
-    //   { _id: ObjectID("5fb2bfd699c59c1e0806b137") },
-    //   (error, user) => {
-    //     if (error) {
-    //       return console.log("Unable to fetch");
+    // db.collection("users")
+    //   .updateOne(
+    //     { _id: ObjectID("5fb29fd7c7067f45542e4846") },
+    //     {
+    //       $inc: {
+    //         age: 1,
+    //       },
     //     }
-    //     console.log(user);
-    //   }
-    // );
-
-    // db.collection("users")
-    //   .find({ age: 50 })
-    //   .toArray((error, users) => {
-    //     console.log(users);
+    //   )
+    //   .then(result => {
+    //     console.log(result);
+    //   })
+    //   .catch(error => {
+    //     console.log(error);
     //   });
-
-    // db.collection("users")
-    //   .find({ age: 50 })
-    //   .count((error, count) => {
-    //     console.log(count);
-    //   });
-
-    db.collection("tasks").findOne(
-      { _id: ObjectID("5fb2a3d1d9df320274cfe8ee") },
-      (error, task) => {
-        if (error) {
-          return console.log("Unable to find task.");
-        }
-        console.log(task);
-      }
-    );
 
     db.collection("tasks")
-      .find({ completed: false })
-      .toArray((error, incompleteTasks) => {
-        console.log(incompleteTasks);
+      .updateMany(
+        {
+          completed: false,
+        },
+        {
+          $set: {
+            completed: true,
+          },
+        }
+      )
+      .then(result => {
+        console.log(result);
+      })
+      .catch(error => {
+        console.log("Failed to update tasks.");
       });
   }
 );
