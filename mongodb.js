@@ -1,12 +1,15 @@
-const mongodb = require("mongodb");
-const MongoClient = mongodb.MongoClient;
+// const mongodb = require("mongodb");
+// const MongoClient = mongodb.MongoClient;
+// const ObjectID = mongodb.ObjectID
+
+const { MongoClient, ObjectID } = require("mongodb");
 
 const connectionURL = "mongodb://127.0.0.1:27017";
 const databaseName = "task-manager";
 
 MongoClient.connect(
   connectionURL,
-  { useNewUrlParser: true },
+  { useNewUrlParser: true, useUnifiedTopology: true },
   (error, client) => {
     if (error) {
       return console.log("Unable to connect to database");
@@ -14,60 +17,42 @@ MongoClient.connect(
 
     const db = client.db(databaseName);
 
-    // db.collection("users").insertOne(
-    //   {
-    //     name: "Frank",
-    //     age: 50,
-    //   },
-    //   (error, result) => {
+    // db.collection("users").findOne(
+    //   { _id: ObjectID("5fb2bfd699c59c1e0806b137") },
+    //   (error, user) => {
     //     if (error) {
-    //       return console.log("Unable to insert user");
+    //       return console.log("Unable to fetch");
     //     }
-
-    //     console.log(result.ops);
+    //     console.log(user);
     //   }
     // );
 
-    // db.collection("users").insertMany(
-    //   [
-    //     {
-    //       name: "Jen",
-    //       age: 28,
-    //     },
-    //     {
-    //       name: "Gunther",
-    //       age: 27,
-    //     },
-    //   ],
-    //   (error, result) => {
-    //     if (error) {
-    //       return console.log("Unable to insert documents");
-    //     }
-    //     console.log(result.ops);
-    //   }
-    // );
+    // db.collection("users")
+    //   .find({ age: 50 })
+    //   .toArray((error, users) => {
+    //     console.log(users);
+    //   });
 
-    db.collection("tasks").insertMany(
-      [
-        {
-          description: "Wash Clothes",
-          completed: true,
-        },
-        {
-          description: "Dry Clothes",
-          completed: false,
-        },
-        {
-          description: "Eat Breakfast",
-          completed: false,
-        },
-      ],
-      (error, result) => {
+    // db.collection("users")
+    //   .find({ age: 50 })
+    //   .count((error, count) => {
+    //     console.log(count);
+    //   });
+
+    db.collection("tasks").findOne(
+      { _id: ObjectID("5fb2a3d1d9df320274cfe8ee") },
+      (error, task) => {
         if (error) {
-          return console.log("Unable to save documents");
+          return console.log("Unable to find task.");
         }
-        console.log(result.ops);
+        console.log(task);
       }
     );
+
+    db.collection("tasks")
+      .find({ completed: false })
+      .toArray((error, incompleteTasks) => {
+        console.log(incompleteTasks);
+      });
   }
 );
