@@ -6,11 +6,24 @@ mongoose.connect("mongodb://127.0.0.1:27017/task-manager-api", {
   useCreateIndex: true,
 });
 
-const User = mongoose.model('User', {
+const User = mongoose.model("User", {
   name: {
-    type: String
-  }, 
+    type: String,
+  },
   age: {
-    type: Number
-  }
-})
+    type: Number,
+  },
+});
+
+const me = new User({
+  name: "Frank",
+  age: 50,
+});
+
+me.save()
+  .then(() => {
+    console.log(me);
+  })
+  .catch(error => {
+    console.log("Error", error);
+  });
