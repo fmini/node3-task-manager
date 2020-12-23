@@ -5,10 +5,10 @@ const createTask = async task => {
   const newTask = new Task(task);
   let response = {};
   try {
-    const saved = await newTask.save();
+    const result = await newTask.save();
     response = {
       success: true,
-      result: saved,
+      result,
     };
   } catch (e) {
     response = {
@@ -19,7 +19,23 @@ const createTask = async task => {
   return response;
 };
 
-const readAllTasks = () => {};
+const readAllTasks = async tasks => {
+  const allTasks = Task.find({});
+  let response = {};
+  try {
+    const result = await Task.find();
+    response = {
+      success: true,
+      result,
+    };
+  } catch (e) {
+    response = {
+      success: false,
+      result: e.message,
+    };
+  }
+  return response;
+};
 
 const readTask = () => {};
 

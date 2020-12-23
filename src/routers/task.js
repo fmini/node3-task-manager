@@ -1,13 +1,16 @@
+const { response } = require("express");
 const express = require("express");
 const router = new express.Router();
 const { taskController } = require("../controllers");
+const { readAllTasks } = require("../controllers/task");
+const task = require("../controllers/task");
+const Task = require("../models/task");
 
 router.post("/tasks", async (req, res) => {
-  const { description, complete } = req.body;
-  const { success, result } = await taskController.createTask({
-    description,
-    complete,
-  });
+  // Only take the description, since it's all we need to create an object. Throw away any other values sent on the req.body.
+  const { description } = req.body;
+  // Desctructure `success` and `result` from the object returned by taskController.createTask()
+  const { success, result } = await taskController.createTask({ description });
   console.log(success, result);
   if (!success) {
     return res.status(400).send({
@@ -18,16 +21,19 @@ router.post("/tasks", async (req, res) => {
 });
 
 router.get("/tasks", async (req, res) => {
-  try {
-    const tasks = await Task.find({});
-    res.send(tasks);
-  } catch (e) {
-    res.status(500).send();
+  //const { description, completed } = req.body;
+  const { success, result } = await taskController.readAllTasks();
+  console.log(success, result);
+  if (!success) {
+    return res.status(400).send({
+      error: result,
+    });
   }
+  res.status(200).send(result);
 });
 
 router.get("/tasks/:id", async (req, res) => {
-  const _id = req.params.id;
+  const _id = req.params.id; // don't use _id as a var name.
 
   try {
     const task = await Task.findById(_id);
