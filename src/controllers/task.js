@@ -1,4 +1,6 @@
+const e = require("express");
 const { response } = require("express");
+const { findById } = require("../models/task");
 const Task = require("../models/task");
 
 const createTask = async task => {
@@ -20,7 +22,7 @@ const createTask = async task => {
 };
 
 const readAllTasks = async tasks => {
-  const allTasks = Task.find({});
+  //const allTasks = Task.find({});
   let response = {};
   try {
     const result = await Task.find();
@@ -37,7 +39,22 @@ const readAllTasks = async tasks => {
   return response;
 };
 
-const readTask = () => {};
+const readTask = async task => {
+  let response = {};
+  try {
+    const result = await Task.findById(task);
+    response = {
+      success: true,
+      result,
+    };
+  } catch (e) {
+    response = {
+      success: false,
+      result: e.message,
+    };
+  }
+  return response;
+};
 
 const updateTask = () => {};
 

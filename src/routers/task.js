@@ -33,18 +33,16 @@ router.get("/tasks", async (req, res) => {
 });
 
 router.get("/tasks/:id", async (req, res) => {
-  const _id = req.params.id; // don't use _id as a var name.
+  const id = req.params.id; // don't use _id as a var name.
+  const { success, result } = await taskController.readTask(id);
+  console.log(success, result);
 
-  try {
-    const task = await Task.findById(_id);
-
-    if (!task) {
-      return res.status(404).send();
-    }
-    res.send(task);
-  } catch (e) {
-    res.status(500).send();
+  if (!success) {
+    return res.status(400).send({
+      error: result,
+    });
   }
+  res.status(200).send(result);
 });
 
 router.patch("/tasks/:id", async (req, res) => {
