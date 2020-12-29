@@ -1,9 +1,6 @@
-const { response } = require("express");
 const express = require("express");
 const router = new express.Router();
 const { taskController } = require("../controllers");
-const { readAllTasks } = require("../controllers/task");
-const task = require("../controllers/task");
 const Task = require("../models/task");
 
 router.post("/tasks", async (req, res) => {
@@ -21,7 +18,6 @@ router.post("/tasks", async (req, res) => {
 });
 
 router.get("/tasks", async (req, res) => {
-  //const { description, completed } = req.body;
   const { success, result } = await taskController.readAllTasks();
   console.log(success, result);
   if (!success) {
@@ -33,8 +29,8 @@ router.get("/tasks", async (req, res) => {
 });
 
 router.get("/tasks/:id", async (req, res) => {
-  const id = req.params.id; // don't use _id as a var name.
-  const { success, result } = await taskController.readTask(id);
+  const taskId = req.params.id; // don't use _id as a var name.
+  const { success, result } = await taskController.readTask(taskId);
   console.log(success, result);
 
   if (!success) {
@@ -46,29 +42,30 @@ router.get("/tasks/:id", async (req, res) => {
 });
 
 router.patch("/tasks/:id", async (req, res) => {
+  const id = req.params.id;
+  const updateTo = req.body;
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["description", "completed"];
-  const isValidOperation = updates.every(update =>
-    allowedUpdates.includes(update)
+  const { success, result } = await taskController.updateTask(
+    id,
+    updates,
+    updateTo
   );
+  console.log(success, result);
 
-  if (!isValidOperation) {
-    return res.status(406).send({ error: "Invalid updates!" });
-  }
-
-  try {
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!task) {
-      return res.status(404).send();
+  if (!success) {
+    switch (result.error) {
+      case "Invalid updates!":
+        res.status(406).send(result);
+        return;
+      case "Task does not exist":
+        res.status(404).send(result);
+        return;
+      default:
+        res.status(400).send(result);
+        return;
     }
-    res.status(202).send(task);
-  } catch (e) {
-    res.status(400).send(e);
   }
+  res.status(200).send(result);
 });
 
 router.delete("/tasks/:id", async (req, res) => {

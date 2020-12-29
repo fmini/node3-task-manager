@@ -1,6 +1,3 @@
-const e = require("express");
-const { response } = require("express");
-const { findById } = require("../models/task");
 const Task = require("../models/task");
 
 const createTask = async task => {
@@ -22,7 +19,6 @@ const createTask = async task => {
 };
 
 const readAllTasks = async tasks => {
-  //const allTasks = Task.find({});
   let response = {};
   try {
     const result = await Task.find();
@@ -39,10 +35,10 @@ const readAllTasks = async tasks => {
   return response;
 };
 
-const readTask = async task => {
+const readTask = async taskId => {
   let response = {};
   try {
-    const result = await Task.findById(task);
+    const result = await Task.findById(taskId);
     response = {
       success: true,
       result,
@@ -56,8 +52,42 @@ const readTask = async task => {
   return response;
 };
 
-const updateTask = () => {};
+const updateTask = async (id, updates, updateTo) => {
+  const allowedUpdates = ["description", "completed"];
+  const isValidOperation = updates.every(update =>
+    allowedUpdates.includes(update)
+  );
 
+  if (!isValidOperation) {
+    return {
+      success: false,
+      result: { error: "Invalid updates!" },
+    };
+  }
+
+  try {
+    const task = await Task.findByIdAndUpdate(id, updateTo, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!task) {
+      return {
+        success: false,
+        result: { error: "Task does not exist" },
+      };
+    }
+    return {
+      success: true,
+      result: task,
+    };
+  } catch (e) {
+    return {
+      success: false,
+      result: { error: e },
+    };
+  }
+};
 const deleteTask = () => {};
 
 module.exports = {
