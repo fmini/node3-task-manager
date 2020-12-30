@@ -38,11 +38,20 @@ const readAllTasks = async tasks => {
 const readTask = async taskId => {
   let response = {};
   try {
-    const result = await Task.findById(taskId);
-    response = {
-      success: true,
-      result,
-    };
+    const task = await Task.findById(taskId);
+    console.log(task);
+    if (!task) {
+      response = {
+        success: false,
+        result: "Task not found",
+      };
+    } else {
+      console.log("I ran");
+      response = {
+        success: true,
+        result: task,
+      };
+    }
   } catch (e) {
     response = {
       success: false,
@@ -88,7 +97,29 @@ const updateTask = async (id, updates, updateTo) => {
     };
   }
 };
-const deleteTask = () => {};
+const deleteTask = async delID => {
+  let response = {};
+  try {
+    const delTask = await Task.findByIdAndDelete(delID);
+    if (!delTask) {
+      response = {
+        success: false,
+        result: "Task does not exist",
+      };
+    } else {
+      response = {
+        success: true,
+        result: "Task successfully deleted",
+      };
+    }
+  } catch (e) {
+    response = {
+      success: false,
+      result: e.message,
+    };
+  }
+  return response;
+};
 
 module.exports = {
   createTask,

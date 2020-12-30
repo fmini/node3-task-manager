@@ -34,7 +34,7 @@ router.get("/tasks/:id", async (req, res) => {
   console.log(success, result);
 
   if (!success) {
-    return res.status(400).send({
+    return res.status(404).send({
       error: result,
     });
   }
@@ -50,7 +50,6 @@ router.patch("/tasks/:id", async (req, res) => {
     updates,
     updateTo
   );
-  console.log(success, result);
 
   if (!success) {
     switch (result.error) {
@@ -69,15 +68,14 @@ router.patch("/tasks/:id", async (req, res) => {
 });
 
 router.delete("/tasks/:id", async (req, res) => {
-  try {
-    const task = await Task.findByIdAndDelete(req.params.id);
-    if (!task) {
-      return res.status(404).send();
-    }
-    res.send(task);
-  } catch (e) {
-    res.status(500).send();
+  const delID = req.params.id;
+  const { success, result } = await taskController.deleteTask(delID);
+  if (!success) {
+    return res.status(404).send({
+      error: result,
+    });
   }
+  res.status(200).send(result);
 });
 
 module.exports = router;
