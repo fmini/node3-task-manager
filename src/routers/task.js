@@ -43,12 +43,10 @@ router.get("/tasks/:id", async (req, res) => {
 
 router.patch("/tasks/:id", async (req, res) => {
   const id = req.params.id;
-  const updateTo = req.body;
-  const updates = Object.keys(req.body);
+  const updates = req.body;
   const { success, result } = await taskController.updateTask(
     id,
     updates,
-    updateTo
   );
 
   if (!success) {
@@ -71,9 +69,14 @@ router.delete("/tasks/:id", async (req, res) => {
   const delID = req.params.id;
   const { success, result } = await taskController.deleteTask(delID);
   if (!success) {
-    return res.status(404).send({
-      error: result,
-    });
+    switch (result.error) {
+      case "Task does not exist":
+        res.status(404).send(result);
+        return;
+      default:
+        res.status(400).send(result)
+        return;
+    }
   }
   res.status(200).send(result);
 });

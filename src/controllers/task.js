@@ -61,10 +61,11 @@ const readTask = async taskId => {
   return response;
 };
 
-const updateTask = async (id, updates, updateTo) => {
+const updateTask = async (id, updates) => {
+  const fields = Object.keys(updates);
   const allowedUpdates = ["description", "completed"];
-  const isValidOperation = updates.every(update =>
-    allowedUpdates.includes(update)
+  const isValidOperation = fields.every(field =>
+    allowedUpdates.includes(field)
   );
 
   if (!isValidOperation) {
@@ -75,7 +76,7 @@ const updateTask = async (id, updates, updateTo) => {
   }
 
   try {
-    const task = await Task.findByIdAndUpdate(id, updateTo, {
+    const task = await Task.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
     });
@@ -101,21 +102,22 @@ const deleteTask = async delID => {
   let response = {};
   try {
     const delTask = await Task.findByIdAndDelete(delID);
+    console.log(delTask);
     if (!delTask) {
       response = {
         success: false,
-        result: "Task does not exist",
+        result: { error: "Task does not exist" },
       };
     } else {
       response = {
         success: true,
-        result: "Task successfully deleted",
+        result: delTask,
       };
     }
   } catch (e) {
     response = {
       success: false,
-      result: e.message,
+      result: { error: e.message },
     };
   }
   return response;
