@@ -1,3 +1,3 @@
 module.exports = {
-  taskController: require("./task"),
+  taskController: require('./task'),
 };

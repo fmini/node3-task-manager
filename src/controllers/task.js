@@ -1,4 +1,4 @@
-const Task = require("../models/task");
+const Task = require('../models/task');
 
 const createTask = async task => {
   const newTask = new Task(task);
@@ -43,10 +43,10 @@ const readTask = async taskId => {
     if (!task) {
       response = {
         success: false,
-        result: "Task not found",
+        result: 'Task not found',
       };
     } else {
-      console.log("I ran");
+      console.log('I ran');
       response = {
         success: true,
         result: task,
@@ -63,7 +63,7 @@ const readTask = async taskId => {
 
 const updateTask = async (id, updates) => {
   const fields = Object.keys(updates);
-  const allowedUpdates = ["description", "completed"];
+  const allowedUpdates = ['description', 'completed'];
   const isValidOperation = fields.every(field =>
     allowedUpdates.includes(field)
   );
@@ -71,20 +71,20 @@ const updateTask = async (id, updates) => {
   if (!isValidOperation) {
     return {
       success: false,
-      result: { error: "Invalid updates!" },
+      result: { error: 'Invalid updates!' },
     };
   }
 
   try {
-    const task = await Task.findByIdAndUpdate(id, updates, {
-      new: true,
-      runValidators: true,
-    });
+    const task = await Task.findById(id);
+
+    fields.forEach(field => (task[field] = updates[field]));
+    await task.save();
 
     if (!task) {
       return {
         success: false,
-        result: { error: "Task does not exist" },
+        result: { error: 'Task does not exist' },
       };
     }
     return {
@@ -106,7 +106,7 @@ const deleteTask = async delID => {
     if (!delTask) {
       response = {
         success: false,
-        result: { error: "Task does not exist" },
+        result: { error: 'Task does not exist' },
       };
     } else {
       response = {
