@@ -1,7 +1,10 @@
 const Task = require('../models/task');
+const auth = require('../middleware/auth');
 
-const createTask = async task => {
-  const newTask = new Task(task);
+const createTask = async (task, owner) => {
+  console.log('task is ' + task + ' and owner is ' + owner);
+  const newTask = new Task({ ...task, owner });
+  console.log('new task is ' + newTask);
   let response = {};
   try {
     const result = await newTask.save();

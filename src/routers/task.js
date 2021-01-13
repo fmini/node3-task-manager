@@ -2,12 +2,18 @@ const express = require('express');
 const router = new express.Router();
 const { taskController } = require('../controllers');
 const Task = require('../models/task');
+const auth = require('../middleware/auth');
 
-router.post('/tasks', async (req, res) => {
+router.post('/tasks', auth, async (req, res) => {
   // Only take the description, since it's all we need to create an object. Throw away any other values sent on the req.body.
   const { description } = req.body;
+  const ownerID = req.user._id;
+  console.log('description is ' + description + ' and ownerID is ' + ownerID);
   // Desctructure `success` and `result` from the object returned by taskController.createTask()
-  const { success, result } = await taskController.createTask({ description });
+  const { success, result } = await taskController.createTask(
+    description,
+    ownerID
+  );
   console.log(success, result);
   if (!success) {
     return res.status(400).send({
