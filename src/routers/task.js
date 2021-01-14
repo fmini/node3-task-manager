@@ -1,20 +1,17 @@
 const express = require('express');
 const router = new express.Router();
 const { taskController } = require('../controllers');
-const Task = require('../models/task');
 const auth = require('../middleware/auth');
 
 router.post('/tasks', auth, async (req, res) => {
   // Only take the description, since it's all we need to create an object. Throw away any other values sent on the req.body.
-  const { description } = req.body;
+  // const { description } = req.body; refactored by passing req.body in total to createTask below
   const ownerID = req.user._id;
-  console.log('description is ' + description + ' and ownerID is ' + ownerID);
   // Desctructure `success` and `result` from the object returned by taskController.createTask()
   const { success, result } = await taskController.createTask(
-    description,
+    req.body,
     ownerID
   );
-  console.log(success, result);
   if (!success) {
     return res.status(400).send({
       error: result,
@@ -25,7 +22,6 @@ router.post('/tasks', auth, async (req, res) => {
 
 router.get('/tasks', async (req, res) => {
   const { success, result } = await taskController.readAllTasks();
-  console.log(success, result);
   if (!success) {
     return res.status(400).send({
       error: result,
@@ -34,10 +30,10 @@ router.get('/tasks', async (req, res) => {
   res.status(200).send(result);
 });
 
-router.get('/tasks/:id', async (req, res) => {
+router.get('/tasks/:id', auth, async (req, res) => {
   const taskId = req.params.id; // don't use _id as a var name.
-  const { success, result } = await taskController.readTask(taskId);
-  console.log(success, result);
+  const ownerID = req.user._id;
+  const { success, result } = await taskController.readTask(taskId, ownerID);
 
   if (!success) {
     return res.status(404).send({

@@ -1,10 +1,7 @@
 const Task = require('../models/task');
-const auth = require('../middleware/auth');
 
 const createTask = async (task, owner) => {
-  console.log('task is ' + task + ' and owner is ' + owner);
   const newTask = new Task({ ...task, owner });
-  console.log('new task is ' + newTask);
   let response = {};
   try {
     const result = await newTask.save();
@@ -38,18 +35,16 @@ const readAllTasks = async tasks => {
   return response;
 };
 
-const readTask = async taskId => {
+const readTask = async (taskId, owner) => {
   let response = {};
   try {
-    const task = await Task.findById(taskId);
-    console.log(task);
+    const task = await Task.findOne({ _id: taskId, owner });
     if (!task) {
       response = {
         success: false,
         result: 'Task not found',
       };
     } else {
-      console.log('I ran');
       response = {
         success: true,
         result: task,
@@ -105,7 +100,6 @@ const deleteTask = async delID => {
   let response = {};
   try {
     const delTask = await Task.findByIdAndDelete(delID);
-    console.log(delTask);
     if (!delTask) {
       response = {
         success: false,
