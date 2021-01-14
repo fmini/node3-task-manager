@@ -18,10 +18,10 @@ const createTask = async (task, owner) => {
   return response;
 };
 
-const readAllTasks = async tasks => {
+const readAllTasks = async owner => {
   let response = {};
   try {
-    const result = await Task.find();
+    const result = await Task.find({ owner });
     response = {
       success: true,
       result,
@@ -35,10 +35,10 @@ const readAllTasks = async tasks => {
   return response;
 };
 
-const readTask = async (taskId, owner) => {
+const readTask = async (taskID, owner) => {
   let response = {};
   try {
-    const task = await Task.findOne({ _id: taskId, owner });
+    const task = await Task.findOne({ _id: taskID, owner });
     if (!task) {
       response = {
         success: false,
@@ -59,7 +59,7 @@ const readTask = async (taskId, owner) => {
   return response;
 };
 
-const updateTask = async (id, updates) => {
+const updateTask = async (taskID, owner, updates) => {
   const fields = Object.keys(updates);
   const allowedUpdates = ['description', 'completed'];
   const isValidOperation = fields.every(field =>
@@ -74,10 +74,7 @@ const updateTask = async (id, updates) => {
   }
 
   try {
-    const task = await Task.findById(id);
-
-    fields.forEach(field => (task[field] = updates[field]));
-    await task.save();
+    const task = await Task.findOne({ _id: taskID, owner });
 
     if (!task) {
       return {
@@ -85,6 +82,8 @@ const updateTask = async (id, updates) => {
         result: { error: 'Task does not exist' },
       };
     }
+    fields.forEach(field => (task[field] = updates[field]));
+    await task.save();
     return {
       success: true,
       result: task,
@@ -96,10 +95,10 @@ const updateTask = async (id, updates) => {
     };
   }
 };
-const deleteTask = async delID => {
+const deleteTask = async (delID, owner) => {
   let response = {};
   try {
-    const delTask = await Task.findByIdAndDelete(delID);
+    const delTask = await Task.findOneAndDelete({ _id: delID, owner });
     if (!delTask) {
       response = {
         success: false,

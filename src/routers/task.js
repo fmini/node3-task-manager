@@ -20,8 +20,9 @@ router.post('/tasks', auth, async (req, res) => {
   res.status(200).send(result);
 });
 
-router.get('/tasks', async (req, res) => {
-  const { success, result } = await taskController.readAllTasks();
+router.get('/tasks', auth, async (req, res) => {
+  const ownerID = req.user.id;
+  const { success, result } = await taskController.readAllTasks(ownerID);
   if (!success) {
     return res.status(400).send({
       error: result,
@@ -32,7 +33,7 @@ router.get('/tasks', async (req, res) => {
 
 router.get('/tasks/:id', auth, async (req, res) => {
   const taskId = req.params.id; // don't use _id as a var name.
-  const ownerID = req.user._id;
+  const ownerID = req.user.id;
   const { success, result } = await taskController.readTask(taskId, ownerID);
 
   if (!success) {
@@ -43,10 +44,15 @@ router.get('/tasks/:id', auth, async (req, res) => {
   res.status(200).send(result);
 });
 
-router.patch('/tasks/:id', async (req, res) => {
-  const id = req.params.id;
+router.patch('/tasks/:id', auth, async (req, res) => {
+  const taskID = req.params.id;
+  const ownerID = req.user.id;
   const updates = req.body;
-  const { success, result } = await taskController.updateTask(id, updates);
+  const { success, result } = await taskController.updateTask(
+    taskID,
+    ownerID,
+    updates
+  );
 
   if (!success) {
     switch (result.error) {
@@ -64,9 +70,10 @@ router.patch('/tasks/:id', async (req, res) => {
   res.status(200).send(result);
 });
 
-router.delete('/tasks/:id', async (req, res) => {
+router.delete('/tasks/:id', auth, async (req, res) => {
   const delID = req.params.id;
-  const { success, result } = await taskController.deleteTask(delID);
+  const ownerID = req.user.id;
+  const { success, result } = await taskController.deleteTask(delID, ownerID);
   if (!success) {
     switch (result.error) {
       case 'Task does not exist':
